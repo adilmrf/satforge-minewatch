@@ -43,8 +43,9 @@ JSON, one packet per message. `t` is Unix time in ms (optional; the dashboard us
 
 ### Detection (send when the ESP32-CAM spots an object)
 ```json
-{ "type": "detection", "t": 1761650000000, "lat": 26.512, "lon": 56.430, "conf": 0.86 }
+{ "type": "detection", "t": 1761650000000, "lat": 26.512, "lon": 56.430, "conf": 0.86, "pass_id": 42 }
 ```
+`pass_id` is optional. If present, two detections from the same pass are never merged into one track.
 For the bench demo, the firmware maps the object's pixel position in the water tray to a lat/lon inside the
 region box (e.g. tray corners → `[25.2, 55.4]`…`[27.2, 57.6]` for Hormuz). The dashboard does the rest:
 it groups detections into hazard tracks (re-sightings confirm a track), estimates drift from successive
