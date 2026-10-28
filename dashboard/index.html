@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MINEWATCH · Team H · SatForge 2026</title>
+  <meta name="description" content="A 1U CubeSat proof-of-concept for wide-area detection, drift prediction and alerting of floating naval mines in the Gulf and Red Sea.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="nav">
+    <a class="brand" href="#top"><span class="brand-dot"></span>MINEWATCH</a>
+    <nav>
+      <a href="#problem">Problem</a>
+      <a href="#mission">Mission</a>
+      <a href="#system">System</a>
+      <a href="#roadmap">Roadmap</a>
+      <a class="nav-cta" href="dashboard.html">Dashboard</a>
+    </nav>
+  </header>
+
+  <main id="top">
+    <!-- HERO -->
+    <section class="hero">
+      <canvas id="hero-canvas" aria-hidden="true"></canvas>
+      <div class="hero-content">
+        <p class="eyebrow">SatForge UAE 2026 · Team H · 1U CubeSat PoC</p>
+        <h1>Eyes on the water,<br><span class="accent">from orbit.</span></h1>
+        <p class="lede">
+          MINEWATCH is a CubeSat proof-of-concept that detects <strong>floating naval mines</strong>,
+          predicts where they will drift, and alerts ships and coast guards before they get there.
+        </p>
+        <div class="hero-actions">
+          <a class="btn primary" href="#mission">See the mission</a>
+          <a class="btn ghost" href="#problem">Why it matters</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- PROBLEM -->
+    <section id="problem" class="section">
+      <div class="container">
+        <p class="kicker">The problem</p>
+        <h2>The region's busiest shipping lanes are mined, and nobody can see the whole picture.</h2>
+
+        <div class="stats">
+          <div class="stat">
+            <span class="stat-num" data-count="6000">~6,000</span>
+            <span class="stat-label">naval mines estimated in Iran's inventory</span>
+          </div>
+          <div class="stat">
+            <span class="stat-num">28 Feb</span>
+            <span class="stat-label">2026: Hormuz shipping largely blocked from this date</span>
+          </div>
+          <div class="stat">
+            <span class="stat-num">~6 mo</span>
+            <span class="stat-label">estimated time to clear the strait (Apr 2026)</span>
+          </div>
+          <div class="stat">
+            <span class="stat-num" data-count="171">171</span>
+            <span class="stat-label">Houthi sea mines found &amp; destroyed in the Red Sea at one point (2021)</span>
+          </div>
+        </div>
+
+        <div class="cards two">
+          <article class="card">
+            <h3>Strait of Hormuz</h3>
+            <p>
+              In March 2026, Iran began laying mines in the strait. How many were laid has never been
+              confirmed, but the <em>threat alone</em> was enough to stop tanker traffic and send
+              insurance costs soaring. Uncertainty is itself the weapon.
+            </p>
+          </article>
+          <article class="card">
+            <h3>Red Sea &amp; Bab el-Mandeb</h3>
+            <p>
+              Most Houthi mines are <strong>floating or drifting</strong>, some built from gas cylinders
+              and contact fuzes. Currents carry them into the main shipping lane toward Suez. They have
+              struck cargo ships and killed fishermen.
+            </p>
+          </article>
+        </div>
+
+        <div class="callout">
+          <strong>The gap:</strong> mine clearance relies on ships, divers and drones that search a few
+          square kilometres at a time. There is no persistent, wide-area picture of where floating
+          mines are, or where they are heading.
+        </div>
+      </div>
+    </section>
+
+    <!-- MISSION -->
+    <section id="mission" class="section alt">
+      <div class="container">
+        <p class="kicker">The mission</p>
+        <h2>Detect. Predict. Alert.</h2>
+        <p class="section-lede">
+          From low Earth orbit, a satellite sees thousands of kilometres of sea on every pass. MINEWATCH
+          uses that view to flag floating objects in high-risk lanes, forecast their drift, and push
+          hazard warnings to the people who need them.
+        </p>
+
+        <ol class="pipeline">
+          <li>
+            <span class="step-num">01</span>
+            <h3>Detect</h3>
+            <p>An on-board camera scans the sea surface and flags floating objects that stand out from the water.</p>
+          </li>
+          <li>
+            <span class="step-num">02</span>
+            <h3>Locate</h3>
+            <p>Satellite attitude and orbit position turn each detection into a position on the map.</p>
+          </li>
+          <li>
+            <span class="step-num">03</span>
+            <h3>Predict drift</h3>
+            <p>Successive sightings plus surface conditions give a heading and speed, projecting where the mine will be.</p>
+          </li>
+          <li>
+            <span class="step-num">04</span>
+            <h3>Alert</h3>
+            <p>Hazards are downlinked and published to a live dashboard for ships, ports and coast guards.</p>
+          </li>
+        </ol>
+
+        <div class="cards three users">
+          <div class="card mini"><h4>Coast guard &amp; navy</h4><p>Cue mine-countermeasure assets to the right search areas.</p></div>
+          <div class="card mini"><h4>Shipping &amp; ports</h4><p>Re-route around predicted hazard zones.</p></div>
+          <div class="card mini"><h4>Fishing communities</h4><p>Early warning in waters with no naval presence.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SYSTEM / PoC -->
+    <section id="system" class="section">
+      <div class="container">
+        <p class="kicker">The proof-of-concept</p>
+        <h2>A 1U CubeSat, a water tray, and a live dashboard.</h2>
+        <p class="section-lede">
+          Our prototype demonstrates the full pipeline on the bench: a mock mine floats on a water tray,
+          the CubeSat spots it, and the alert appears on this dashboard within seconds.
+        </p>
+
+        <div class="flow" aria-label="Demo data flow">
+          <div class="flow-node">Mock mine<br><small>on water tray</small></div>
+          <div class="flow-arrow"></div>
+          <div class="flow-node hl">CubeSat<br><small>ESP32-CAM detects</small></div>
+          <div class="flow-arrow"></div>
+          <div class="flow-node">LoRa / Wi-Fi<br><small>downlink</small></div>
+          <div class="flow-arrow"></div>
+          <div class="flow-node hl">Dashboard<br><small>position, drift, alert</small></div>
+        </div>
+
+        <div class="components">
+          <div class="comp"><span class="tag">OBC</span><h4>ESP32-WROOM-32</h4><p>On-board computer: runs detection logic and Wi-Fi downlink.</p></div>
+          <div class="comp"><span class="tag">Payload</span><h4>ESP32-CAM</h4><p>Imaging payload that spots floating objects on the surface.</p></div>
+          <div class="comp"><span class="tag">Comms</span><h4>LoRa SX1278</h4><p>433 MHz link for hazard alerts and future buoy relay.</p></div>
+          <div class="comp"><span class="tag">ADCS</span><h4>MPU-6050</h4><p>Attitude sensing so detections can be geolocated.</p></div>
+          <div class="comp"><span class="tag">Thermal</span><h4>TMP102</h4><p>Satellite thermal health and surface-temperature input.</p></div>
+          <div class="comp"><span class="tag">EPS</span><h4>INA219 + solar + battery</h4><p>Measures power in and out; solar-charged battery.</p></div>
+          <div class="comp"><span class="tag">Sensing</span><h4>LDR</h4><p>Sun vs. eclipse detection to switch power modes.</p></div>
+          <div class="comp"><span class="tag">Storage</span><h4>Micro SD</h4><p>Stores detections between ground-station passes.</p></div>
+        </div>
+
+        <p class="note">
+          <strong>Honest scope:</strong> a real 1U camera resolves roughly 7 m per pixel from orbit, so it cannot
+          see a 1 m mine. This PoC proves the detection, drift-prediction and alerting pipeline. An operational
+          system would need larger optics or a constellation, with drones confirming each candidate.
+        </p>
+      </div>
+    </section>
+
+    <!-- ROADMAP -->
+    <section id="roadmap" class="section alt">
+      <div class="container">
+        <p class="kicker">Roadmap</p>
+        <h2>From proof-of-concept to a layered mine-warning network.</h2>
+        <div class="timeline">
+          <div class="phase now">
+            <span class="phase-tag">Phase 1 · Now</span>
+            <h3>CubeSat PoC</h3>
+            <p>Floating-mine detection, drift prediction and alerting, demonstrated end to end.</p>
+          </div>
+          <div class="phase">
+            <span class="phase-tag">Phase 2</span>
+            <h3>Buoys &amp; drones</h3>
+            <p>In-water sensors confirm candidates and find seabed and moored mines. The satellite relays their data from beyond the horizon.</p>
+          </div>
+          <div class="phase">
+            <span class="phase-tag">Phase 3</span>
+            <h3>Operational constellation</h3>
+            <p>Larger-aperture satellites over Hormuz, the Gulf of Oman and the Red Sea, feeding a regional hazard map.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DASHBOARD PLACEHOLDER -->
+    <section id="dashboard" class="section">
+      <div class="container">
+        <div class="dash-teaser">
+          <div>
+            <p class="kicker">Mission control</p>
+            <h2>Live dashboard</h2>
+            <p>Real-time detections, predicted drift tracks, and satellite health: temperature, power and attitude.</p>
+          </div>
+          <a class="btn primary" href="dashboard.html">Open mission control →</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="foot-grid">
+        <div>
+          <p class="brand"><span class="brand-dot"></span>MINEWATCH</p>
+          <p class="muted">Team H · SatForge UAE 2026 · National University Satellite Engineering Challenge</p>
+        </div>
+        <div>
+          <p class="foot-h">Sources</p>
+          <ul class="sources">
+            <li><a href="https://www.cnn.com/2026/03/10/politics/iran-begins-laying-mines-in-strait-of-hormuz" target="_blank" rel="noopener">CNN: Iran begins laying mines in Strait of Hormuz (Mar 2026)</a></li>
+            <li><a href="https://www.axios.com/2026/04/23/iran-strait-hormuz-mines-trump" target="_blank" rel="noopener">Axios: Iran deploys more mines in the Strait (Apr 2026)</a></li>
+            <li><a href="https://www.aljazeera.com/economy/2026/4/13/what-do-we-know-about-sea-mines-in-and-around-the-strait-of-hormuz" target="_blank" rel="noopener">Al Jazeera: Sea mines in and around the Strait of Hormuz</a></li>
+            <li><a href="https://www.pbs.org/newshour/world/u-s-says-its-clearing-iranian-mines-in-latest-push-to-open-the-strait-of-hormuz" target="_blank" rel="noopener">PBS: US clearing Iranian mines</a></li>
+            <li><a href="https://www.stimson.org/2024/if-the-gaza-war-continues-will-the-houthis-mine-the-gateways-to-the-red-sea/" target="_blank" rel="noopener">Stimson: Houthi mines and the Red Sea</a></li>
+            <li><a href="https://www.hisutton.com/Houthi_mines_in_Red_Sea.html" target="_blank" rel="noopener">H I Sutton: Houthi mines in the Red Sea</a></li>
+            <li><a href="https://breakingdefense.com/2021/06/houthis-lay-sea-mines-in-red-sea-coalition-boasts-few-minesweepers/" target="_blank" rel="noopener">Breaking Defense: Houthis lay sea mines (2021)</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="main.js"></script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+﻿# Only the website, firmware and deploy workflow are published.
+# Team documents (brief, sourcing, notes) stay local.
+/*
+!/.gitignore
+!/README.md
+!/dashboard/
+!/firmware/
