@@ -116,8 +116,10 @@ class Simulator {
   }
 
   startPass() {
+    // Passes are targeted at the shipping lane (area of interest), not random sea.
     const [[s, w], [n, e]] = this.region.bounds;
-    const lonC = rand(w + 0.4, e - 0.4);
+    const lp = this.region.lane[Math.floor(Math.random() * this.region.lane.length)];
+    const lonC = clamp(lp[1] + rand(-0.3, 0.3), w + 0.4, e - 0.4);
     this.pass = {
       t0: this.t,
       a: [n + 0.4, lonC + 0.3],   // descending (southbound) sun-synchronous track
@@ -157,7 +159,7 @@ class Simulator {
     const latN = lat + nN / KM_PER_DEG;
     const lonN = lon + nE / (KM_PER_DEG * Math.cos(lat * Math.PI / 180));
     this.sd++;
-    this.emit({ type: "detection", t: this.now(), lat: latN, lon: lonN, conf: +conf.toFixed(2) });
+    this.emit({ type: "detection", t: this.now(), lat: latN, lon: lonN, conf: +conf.toFixed(2), pass_id: this.lastPassOrbit });
   }
 
   step(dt) {
@@ -287,12 +289,14 @@ class Tracker {
     for (const tr of this.tracks) {
       this.estimate(tr, det.t);
       const dtH = (det.t - tr.dets[tr.dets.length - 1].t) / 3.6e6;
+      // A second object seen on the same pass is a different hazard, not a re-sighting.
+      if (det.pass_id != null && tr.lastPass === det.pass_id) continue;
       const gate = Math.min(4 + (tr.dets.length >= 2 ? 1.0 : 2.0) * dtH, 30);
       const d = distKm(tr.pos, [det.lat, det.lon]);
       if (d < gate && d < bestD) { best = tr; bestD = d; }
     }
     if (!best) {
-      best = { id: `MW-${String(++this.seq).padStart(2, "0")}`, dets: [], status: "candidate", risk: "low" };
+      best = { id: `MW-${String(++this.seq).padStart(2, "0")}`, dets: [], status: "candidate", risk: "low", lastPass: det.pass_id };
       this.tracks.push(best);
       best.dets.push(det);
       this.estimate(best, det.t);
@@ -301,6 +305,7 @@ class Tracker {
       return best;
     }
     best.dets.push(det);
+    best.lastPass = det.pass_id;
     const prevRisk = best.risk;
     this.estimate(best, det.t);
     this.assess(best);
@@ -617,7 +622,7 @@ function onPacket(p) {
     pushSpark("solar", p.solar_mw); pushSpark("load", p.power_mw);
     pushSpark("soc", p.soc); pushSpark("temp", p.temp_c); pushSpark("ldr", p.ldr);
   } else if (p.type === "detection") {
-    state.tracker.ingest({ t: p.t || Date.now(), lat: p.lat, lon: p.lon, conf: p.conf ?? 0.5 });
+    state.tracker.ingest({ t: p.t || Date.now(), lat: p.lat, lon: p.lon, conf: p.conf ?? 0.5, pass_id: p.pass_id ?? null });
     drawTracks();
     renderHazards();
   }
