@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MINEWATCH · Mission Control</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+  <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="index.html"><span class="brand-dot"></span>MINEWATCH</a>
+    <div class="status-strip">
+      <div class="pill" id="pill-source" title="Data source">SIM</div>
+      <div class="pill" id="pill-mode">SUNLIT</div>
+      <div class="pill" id="pill-pass">NO PASS</div>
+      <div class="pill" id="pill-link">LINK</div>
+      <div class="clock">
+        <span class="label">MET</span><span id="met" class="mono">00:00:00</span>
+        <span class="label">UTC</span><span id="utc" class="mono">--:--</span>
+      </div>
+    </div>
+    <div class="controls">
+      <div class="seg" id="region-seg" role="group" aria-label="Region">
+        <button data-region="hormuz" class="on">Hormuz</button>
+        <button data-region="redsea">Red Sea</button>
+      </div>
+      <label class="speed">Sim speed
+        <select id="speed">
+          <option value="60">60×</option>
+          <option value="300">300×</option>
+          <option value="900" selected>900×</option>
+          <option value="3600">3600×</option>
+        </select>
+      </label>
+      <button id="btn-pause" class="btn-sm">Pause</button>
+      <button id="btn-serial" class="btn-sm btn-gs" hidden>Connect ground station</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="map-wrap panel">
+      <div id="map"></div>
+      <div class="map-legend">
+        <span><i class="lg lane"></i>Shipping lane (illustrative)</span>
+        <span><i class="lg swath"></i>Sensor swath</span>
+        <span><i class="lg conf"></i>Confirmed hazard</span>
+        <span><i class="lg cand"></i>Candidate</span>
+        <span><i class="lg drift"></i>Predicted drift +6/12/24 h</span>
+        <label class="truth"><input type="checkbox" id="show-truth"> Show sim truth</label>
+      </div>
+    </section>
+
+    <aside class="side">
+      <section class="panel">
+        <div class="panel-h"><h2>Hazards</h2><span class="count" id="haz-count">0</span></div>
+        <div id="hazards" class="hazards"><p class="empty">No detections yet. Waiting for the next pass…</p></div>
+      </section>
+      <section class="panel grow">
+        <div class="panel-h"><h2>Alerts</h2><button id="btn-clear" class="link-btn">Clear</button></div>
+        <ol id="alerts" class="alerts"></ol>
+      </section>
+    </aside>
+
+    <section class="tele">
+      <div class="panel card">
+        <div class="card-h"><h3>Power</h3><span class="tag">INA219 · EPS</span></div>
+        <div class="kv"><span>Solar in</span><b id="v-solar">–</b></div>
+        <div class="kv"><span>Load</span><b id="v-load">–</b></div>
+        <div class="kv"><span>Bus</span><b id="v-bus">–</b></div>
+        <canvas class="spark" id="sp-power"></canvas>
+      </div>
+      <div class="panel card">
+        <div class="card-h"><h3>Battery</h3><span class="tag">18650</span></div>
+        <div class="big" id="v-soc">–</div>
+        <div class="bar"><div id="bar-soc"></div></div>
+        <div class="kv"><span>Voltage</span><b id="v-batt">–</b></div>
+        <canvas class="spark" id="sp-soc"></canvas>
+      </div>
+      <div class="panel card">
+        <div class="card-h"><h3>Thermal</h3><span class="tag">TMP102</span></div>
+        <div class="big" id="v-temp">–</div>
+        <canvas class="spark" id="sp-temp"></canvas>
+      </div>
+      <div class="panel card">
+        <div class="card-h"><h3>Attitude</h3><span class="tag">MPU-6050</span></div>
+        <canvas id="horizon" class="horizon"></canvas>
+        <div class="kv three"><span>R <b id="v-roll">–</b></span><span>P <b id="v-pitch">–</b></span><span>Y <b id="v-yaw">–</b></span></div>
+      </div>
+      <div class="panel card">
+        <div class="card-h"><h3>Light / Eclipse</h3><span class="tag">LDR</span></div>
+        <div class="big" id="v-ldr">–</div>
+        <div class="kv"><span>Next transition</span><b id="v-next">–</b></div>
+        <canvas class="spark" id="sp-ldr"></canvas>
+      </div>
+      <div class="panel card">
+        <div class="card-h"><h3>Comms &amp; Payload</h3><span class="tag">LoRa · CAM · SD</span></div>
+        <div class="kv"><span>RSSI / SNR</span><b id="v-rssi">–</b></div>
+        <div class="kv"><span>Camera</span><b id="v-cam">–</b></div>
+        <div class="kv"><span>Detections</span><b id="v-det">0</b></div>
+        <div class="kv"><span>SD records</span><b id="v-sd">0</b></div>
+        <div class="kv"><span>Last packet</span><b id="v-age">–</b></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    Simulated data for Phase 1. Orbit pass cadence and drift are compressed for demonstration; lanes are illustrative, not navigational.
+    <a href="index.html">← Mission overview</a>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+  <script src="dashboard.js"></script>
+</body>
+</html>
