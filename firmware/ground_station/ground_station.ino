@@ -1,29 +1,42 @@
-// MINEWATCH ground station (ESP32 + Ra-02 SX1278 LoRa, 433 MHz)
+// MINEWATCH ground station (ESP32 + HC-12, 433 MHz)
 //
-// Receives compact CSV packets from the CubeSat over LoRa, adds link quality
-// (RSSI/SNR), and prints one JSON packet per line over USB at 115200 baud.
-// The dashboard reads those lines with the "Connect ground station" button.
+// Receives compact CSV packets from the CubeSat over the HC-12 radio and prints
+// one JSON packet per line over USB at 115200 baud. The dashboard reads those
+// lines with the "Connect ground station" button. The HC-12 gives no signal
+// strength, so rssi and snr are sent as 0.
+// Anything typed into the USB serial monitor (for example PING) is sent to the
+// satellite.
 //
-// TEST_MODE 1: no LoRa needed. Prints fake telemetry + detections so the
+// Wiring (jumper wires, no soldering): HC-12 VCC -> 3V3, GND -> GND,
+// HC-12 TXD -> GPIO16, HC-12 RXD -> GPIO17, SET left unconnected.
+//
+// TEST_MODE 1: no radio needed. Prints fake telemetry + detections so the
 //              USB -> dashboard chain can be tested before the CubeSat exists.
-// TEST_MODE 0: real ground station. Needs the "LoRa" library by Sandeep Mistry
-//              (Arduino IDE > Library Manager > search "LoRa").
+// TEST_MODE 0: real ground station. No extra library needed.
 //
 // CubeSat packet formats (must stay under 255 bytes, keep them short):
 //   T,temp_c,solar_mw,power_mw,bus_v,current_ma,batt_v,soc,ldr,roll,pitch,yaw,cam_on,sd_records
 //   D,lat,lon,conf
 
-#define TEST_MODE 1
+#define TEST_MODE 0
 
 #if !TEST_MODE
-#include <SPI.h>
-#include <LoRa.h>
-
-// Ra-02 wiring to ESP32 (VSPI). Ra-02 runs on 3.3 V only.
-const int PIN_SCK = 18, PIN_MISO = 19, PIN_MOSI = 23;
-const int PIN_NSS = 5, PIN_RST = 14, PIN_DIO0 = 2;
-const long LORA_FREQ = 433E6;
-const int LORA_SYNC = 0x12;   // must match the CubeSat
+#include <WiFi.h>
+#include <esp_now.h>
+#include <esp_wifi.h>
+// Backup link: ESP-NOW packets from the satellite (channel 1). Kept in a small queue.
+char nowQ[8][251]; volatile int nowHead = 0, nowTail = 0;
+unsigned long lastNowMs = 0;
+void onNowRecv(const esp_now_recv_info_t *info, const uint8_t *data, int len) {
+  int next = (nowHead + 1) % 8;
+  if (next == nowTail) return;                 // queue full: drop
+  int n = min(len, 250);
+  memcpy(nowQ[nowHead], data, n); nowQ[nowHead][n] = 0;
+  nowHead = next;
+}
+const int PIN_HC12_RX = 16, PIN_HC12_TX = 17;   // ESP32 RX <- HC-12 TXD, ESP32 TX -> HC-12 RXD
+HardwareSerial HC12(2);
+String hcBuf, usbBuf;
 #endif
 
 // ---------------------------------------------------------------- helpers
@@ -112,14 +125,15 @@ void setup() {
   Serial.println("# MINEWATCH ground station: TEST MODE (fake data)");
   randomSeed(esp_random());
 #else
-  SPI.begin(PIN_SCK, PIN_MISO, PIN_MOSI, PIN_NSS);
-  LoRa.setPins(PIN_NSS, PIN_RST, PIN_DIO0);
-  if (!LoRa.begin(LORA_FREQ)) {
-    Serial.println("# LoRa init failed. Check wiring and 3.3 V supply");
-    while (true) delay(1000);
-  }
-  LoRa.setSyncWord(LORA_SYNC);
-  Serial.println("# MINEWATCH ground station: listening on 433 MHz");
+  HC12.begin(9600, SERIAL_8N1, PIN_HC12_RX, PIN_HC12_TX);
+  Serial.println("# MINEWATCH ground station: HC-12 listening on 433 MHz (channel 1, 9600)");
+  WiFi.mode(WIFI_STA);
+  WiFi.disconnect();
+  esp_wifi_set_promiscuous(true);
+  esp_wifi_set_channel(1, WIFI_SECOND_CHAN_NONE);
+  esp_wifi_set_promiscuous(false);
+  if (esp_now_init() == ESP_OK) { esp_now_register_recv_cb(onNowRecv); Serial.println("# ESP-NOW backup link listening"); }
+  else Serial.println("# ESP-NOW init failed");
 #endif
 }
 
@@ -134,11 +148,27 @@ void loop() {
     handleLine(fakeDetection(), 0, 0);
   }
 #else
-  int size = LoRa.parsePacket();
-  if (size) {
-    String line;
-    while (LoRa.available()) line += (char)LoRa.read();
-    handleLine(line, LoRa.packetRssi(), LoRa.packetSnr());
+  while (nowTail != nowHead) {                           // ESP-NOW packets first
+    String line = String(nowQ[nowTail]);
+    nowTail = (nowTail + 1) % 8;
+    line.trim();
+    lastNowMs = millis();
+    if (line.startsWith("#")) Serial.println(line);
+    else if (line.length()) handleLine(line, 0, 0);
+  }
+  while (HC12.available()) {
+    char c = HC12.read();
+    if (c == '\n') {
+      hcBuf.trim();
+      if (hcBuf.startsWith("#")) Serial.println(hcBuf);   // satellite status messages
+      else if (hcBuf.length() && millis() - lastNowMs > 5000) handleLine(hcBuf, 0, 0);   // skip duplicates while ESP-NOW is live
+      hcBuf = "";
+    } else if (c != '\r' && hcBuf.length() < 200) hcBuf += c;
+  }
+  while (Serial.available()) {                            // commands to the satellite
+    char c = Serial.read();
+    if (c == '\n') { usbBuf.trim(); if (usbBuf.startsWith("AT")) HC12.print(usbBuf); else if (usbBuf.length()) HC12.println(usbBuf); usbBuf = ""; }
+    else if (c != '\r') usbBuf += c;
   }
 #endif
 }
