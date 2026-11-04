@@ -149,17 +149,17 @@
           <div class="flow-arrow"></div>
           <div class="flow-node hl">CubeSat<br><small>ESP32-CAM detects</small></div>
           <div class="flow-arrow"></div>
-          <div class="flow-node">LoRa / Wi-Fi<br><small>downlink</small></div>
+          <div class="flow-node">HC-12 433 MHz<br><small>radio downlink</small></div>
           <div class="flow-arrow"></div>
           <div class="flow-node hl">Dashboard<br><small>position, drift, alert</small></div>
         </div>
 
         <div class="components">
           <div class="comp"><span class="tag">OBC</span><h4>ESP32-WROOM-32</h4><p>On-board computer: runs detection logic and Wi-Fi downlink.</p></div>
-          <div class="comp"><span class="tag">Payload</span><h4>ESP32-CAM</h4><p>Imaging payload that spots floating objects on the surface.</p></div>
-          <div class="comp"><span class="tag">Comms</span><h4>LoRa SX1278</h4><p>433 MHz link for hazard alerts and future buoy relay.</p></div>
+          <div class="comp"><span class="tag">Payload</span><h4>ESP32-CAM</h4><p>Imaging payload: on-board colour thresholding flags red objects as mines and yellow as candidates.</p></div>
+          <div class="comp"><span class="tag">Comms</span><h4>HC-12 radio</h4><p>433 MHz link for hazard alerts and telemetry to the ground station.</p></div>
           <div class="comp"><span class="tag">ADCS</span><h4>MPU-6050</h4><p>Attitude sensing so detections can be geolocated.</p></div>
-          <div class="comp"><span class="tag">Thermal</span><h4>TMP102</h4><p>Satellite thermal health and surface-temperature input.</p></div>
+          <div class="comp"><span class="tag">Thermal</span><h4>DHT-22</h4><p>Board temperature for satellite thermal health.</p></div>
           <div class="comp"><span class="tag">EPS</span><h4>INA219 + solar + battery</h4><p>Measures power in and out; solar-charged battery.</p></div>
           <div class="comp"><span class="tag">Sensing</span><h4>LDR</h4><p>Sun vs. eclipse detection to switch power modes.</p></div>
           <div class="comp"><span class="tag">Storage</span><h4>Micro SD</h4><p>Stores detections between ground-station passes.</p></div>

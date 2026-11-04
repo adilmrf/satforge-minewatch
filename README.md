@@ -3,4 +3,4 @@
 1U CubeSat proof-of-concept for detecting floating naval mines, predicting their drift and alerting shipping.
 
 - `dashboard/`: mission website and live mission-control dashboard (deployed to GitHub Pages)
-- `firmware/ground_station/`: ESP32 + LoRa ground station that forwards CubeSat packets to the dashboard over USB
+- `firmware/ground_station/`: ESP32 + HC-12 433 MHz ground station that forwards CubeSat packets to the dashboard over USB

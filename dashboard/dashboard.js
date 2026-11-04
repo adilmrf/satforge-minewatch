@@ -384,6 +384,8 @@ function connectLive(url, onPacket, onStatus) {
 async function connectSerial(onPacket, onStatus) {
   const port = await navigator.serial.requestPort();
   await port.open({ baudRate: 115200 });
+  // ESP32 dev boards wire DTR/RTS to EN and IO0; release both so the board runs instead of sitting in reset
+  try { await port.setSignals({ dataTerminalReady: false, requestToSend: false }); } catch (e) { console.warn(e); }
   onStatus(true);
   const reader = port.readable.pipeThrough(new TextDecoderStream()).getReader();
   let buf = "";
@@ -396,6 +398,20 @@ async function connectSerial(onPacket, onStatus) {
       while ((nl = buf.indexOf("\n")) >= 0) {
         const line = buf.slice(0, nl).trim();
         buf = buf.slice(nl + 1);
+        console.log("GS>", line);
+        // Bench mode: the satellite itself on USB prints "TX T,..." and "TX D,..." lines; read them directly
+        const csv = line.startsWith("TX ") ? line.slice(3) : null;
+        if (csv && (csv.startsWith("T,") || csv.startsWith("D,"))) {
+          const f = csv.split(",");
+          if (f[0] === "T" && f.length >= 14) {
+            onPacket({ type: "telemetry", temp_c: +f[1], solar_mw: +f[2], power_mw: +f[3], bus_v: +f[4], current_ma: +f[5],
+              batt_v: +f[6], soc: +f[7], ldr: +f[8], roll: +f[9], pitch: +f[10], yaw: +f[11], cam_on: f[12] === "1",
+              pass: f[12] === "1", sd_records: +f[13], rssi: 0, snr: 0 });
+          } else if (f[0] === "D" && f.length >= 4) {
+            onPacket({ type: "detection", lat: +f[1], lon: +f[2], conf: +f[3] });
+          }
+          continue;
+        }
         if (!line.startsWith("{")) continue; // ignore boot messages / debug prints
         try { onPacket(JSON.parse(line)); } catch { console.warn("Bad line", line); }
       }
@@ -634,10 +650,11 @@ function renderTelemetry() {
   $("v-solar").textContent = `${p.solar_mw} mW`;
   $("v-load").textContent = `${p.power_mw} mW`;
   $("v-bus").textContent = `${p.bus_v.toFixed(2)} V · ${p.current_ma} mA`;
-  $("v-soc").textContent = `${p.soc.toFixed(0)}%`;
-  $("bar-soc").style.width = `${p.soc}%`;
+  const onBus = p.batt_v > 4.4;   // INA219 fitted on the 5 V bus: it measures load power, not the cell
+  $("v-soc").textContent = onBus ? "5 V bus" : `${p.soc.toFixed(0)}%`;
+  $("bar-soc").style.width = onBus ? "0%" : `${p.soc}%`;
   $("bar-soc").style.background = p.soc < 30 ? "var(--danger)" : p.soc < 55 ? "var(--warn)" : "var(--ok)";
-  $("v-batt").textContent = `${p.batt_v.toFixed(2)} V`;
+  $("v-batt").textContent = onBus ? "cell not measured" : `${p.batt_v.toFixed(2)} V`;
   $("v-temp").textContent = `${p.temp_c.toFixed(1)} °C`;
   $("v-roll").textContent = `${p.roll.toFixed(1)}°`;
   $("v-pitch").textContent = `${p.pitch.toFixed(1)}°`;
