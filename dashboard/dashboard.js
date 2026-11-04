@@ -760,6 +760,7 @@ if ("serial" in navigator) {
         btn.textContent = ok ? "Ground station connected" : "Ground station lost";
         btn.classList.toggle("on", ok);
         setPill("pill-source", ok ? "LIVE · USB" : "USB · OFFLINE", ok ? "ok" : "warn");
+        if (ok) $("foot-note").textContent = "Live data from the ground station. Lanes are illustrative, not navigational.";
         setPill("pill-link", ok ? "LINK" : "NO LINK", ok ? "ok" : "warn");
       });
     } catch (err) {
