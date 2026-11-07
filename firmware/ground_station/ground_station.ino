@@ -1,6 +1,7 @@
 // MINEWATCH ground station (ESP32 + HC-12, 433 MHz)
 //
-// Receives compact CSV packets from the CubeSat over the HC-12 radio and prints
+// Receives compact CSV packets from the CubeSat over the HC-12 radio and the
+// ESP-NOW (Wi-Fi) backup link (see PREFER_HC12 below for which one wins), and prints
 // one JSON packet per line over USB at 115200 baud. The dashboard reads those
 // lines with the "Connect ground station" button. The HC-12 gives no signal
 // strength, so rssi and snr are sent as 0.
@@ -20,13 +21,23 @@
 
 #define TEST_MODE 0
 
+// Which link wins when both are working. The satellite sends every packet on both.
+//   1 = HC-12 433 MHz radio first, ESP-NOW (Wi-Fi) as backup
+//   0 = ESP-NOW first, HC-12 as backup
+// The backup link's copy is ignored while the preferred link has delivered a packet
+// in the last 5 s. If the preferred link goes quiet, the backup takes over by itself.
+// A "# link: ..." line is printed whenever the link in use changes.
+#define PREFER_HC12 1
+
 #if !TEST_MODE
 #include <WiFi.h>
 #include <esp_now.h>
 #include <esp_wifi.h>
 // Backup link: ESP-NOW packets from the satellite (channel 1). Kept in a small queue.
 char nowQ[8][251]; volatile int nowHead = 0, nowTail = 0;
-unsigned long lastNowMs = 0;
+unsigned long lastNowMs = 0, lastHcMs = 0;     // when each link last delivered a packet
+int activeLink = 0;                            // 1 = HC-12, 2 = ESP-NOW
+const unsigned long LINK_HOLD_MS = 5000;
 void onNowRecv(const esp_now_recv_info_t *info, const uint8_t *data, int len) {
   int next = (nowHead + 1) % 8;
   if (next == nowTail) return;                 // queue full: drop
@@ -78,6 +89,26 @@ void handleLine(const String &line, int rssi, float snr) {
   else if (n == 4 && f[0] == "D") printDetection(f);
   else Serial.println("# unknown packet: " + line);   // '#' lines are ignored by the dashboard
 }
+
+#if !TEST_MODE
+// One received line from a link (1 = HC-12, 2 = ESP-NOW). Drops the backup link's
+// copy while the preferred link is live, so the dashboard never sees doubles.
+void useLine(const String &line, int link) {
+  unsigned long now = millis();
+  bool packet = line.startsWith("T,") || line.startsWith("D,");
+  if (packet) { if (link == 1) lastHcMs = now; else lastNowMs = now; }
+  bool preferred = PREFER_HC12 ? link == 1 : link == 2;
+  unsigned long otherMs = link == 1 ? lastNowMs : lastHcMs;
+  bool otherLive = otherMs > 0 && now - otherMs < LINK_HOLD_MS;
+  if (!preferred && otherLive) return;
+  if (packet && link != activeLink) {
+    activeLink = link;
+    Serial.println(link == 1 ? "# link: HC-12 433 MHz" : "# link: ESP-NOW (Wi-Fi)");
+  }
+  if (line.startsWith("#")) Serial.println(line);   // satellite status messages
+  else handleLine(line, 0, 0);
+}
+#endif
 
 // ---------------------------------------------------------------- test mode
 
@@ -148,20 +179,17 @@ void loop() {
     handleLine(fakeDetection(), 0, 0);
   }
 #else
-  while (nowTail != nowHead) {                           // ESP-NOW packets first
+  while (nowTail != nowHead) {                           // ESP-NOW packets
     String line = String(nowQ[nowTail]);
     nowTail = (nowTail + 1) % 8;
     line.trim();
-    lastNowMs = millis();
-    if (line.startsWith("#")) Serial.println(line);
-    else if (line.length()) handleLine(line, 0, 0);
+    if (line.length()) useLine(line, 2);
   }
-  while (HC12.available()) {
+  while (HC12.available()) {                             // HC-12 packets
     char c = HC12.read();
     if (c == '\n') {
       hcBuf.trim();
-      if (hcBuf.startsWith("#")) Serial.println(hcBuf);   // satellite status messages
-      else if (hcBuf.length() && millis() - lastNowMs > 5000) handleLine(hcBuf, 0, 0);   // skip duplicates while ESP-NOW is live
+      if (hcBuf.length()) useLine(hcBuf, 1);
       hcBuf = "";
     } else if (c != '\r' && hcBuf.length() < 200) hcBuf += c;
   }
