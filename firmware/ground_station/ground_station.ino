@@ -95,7 +95,9 @@ void handleLine(const String &line, int rssi, float snr) {
 // copy while the preferred link is live, so the dashboard never sees doubles.
 void useLine(const String &line, int link) {
   unsigned long now = millis();
-  bool packet = line.startsWith("T,") || line.startsWith("D,");
+  String f[16];                                  // only a complete, valid packet counts as "link live"
+  int n = splitCsv(line, f, 16);
+  bool packet = (n == 14 && f[0] == "T") || (n == 4 && f[0] == "D");
   if (packet) { if (link == 1) lastHcMs = now; else lastNowMs = now; }
   bool preferred = PREFER_HC12 ? link == 1 : link == 2;
   unsigned long otherMs = link == 1 ? lastNowMs : lastHcMs;
