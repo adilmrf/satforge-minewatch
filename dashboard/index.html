@@ -155,12 +155,12 @@
         </div>
 
         <div class="components">
-          <div class="comp"><span class="tag">OBC</span><h4>ESP32-WROOM-32</h4><p>On-board computer: runs detection logic and Wi-Fi downlink.</p></div>
+          <div class="comp"><span class="tag">OBC</span><h4>ESP32-WROOM-32</h4><p>On-board computer: reads the sensors, relays camera detections and sends everything down over the radio.</p></div>
           <div class="comp"><span class="tag">Payload</span><h4>ESP32-CAM</h4><p>Imaging payload: on-board colour thresholding flags red objects as mines and yellow as candidates.</p></div>
-          <div class="comp"><span class="tag">Comms</span><h4>HC-12 radio</h4><p>433 MHz link for hazard alerts and telemetry to the ground station.</p></div>
+          <div class="comp"><span class="tag">Comms</span><h4>HC-12 radio</h4><p>433 MHz link for hazard alerts and telemetry to the ground station, with ESP-NOW (Wi-Fi) as a backup.</p></div>
           <div class="comp"><span class="tag">ADCS</span><h4>MPU-6050</h4><p>Attitude sensing so detections can be geolocated.</p></div>
           <div class="comp"><span class="tag">Thermal</span><h4>DHT-22</h4><p>Board temperature for satellite thermal health.</p></div>
-          <div class="comp"><span class="tag">EPS</span><h4>INA219 + solar + battery</h4><p>Measures power in and out; solar-charged battery.</p></div>
+          <div class="comp"><span class="tag">EPS</span><h4>INA219 + solar + battery</h4><p>INA219 measures load power on the 5 V bus; solar input is estimated from the LDR. Solar-charged battery.</p></div>
           <div class="comp"><span class="tag">Sensing</span><h4>LDR</h4><p>Sun vs. eclipse detection to switch power modes.</p></div>
           <div class="comp"><span class="tag">Storage</span><h4>Micro SD</h4><p>Stores detections between ground-station passes.</p></div>
         </div>

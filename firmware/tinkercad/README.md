@@ -7,10 +7,10 @@ crucial to the mission, else skip it.
 |---|---|---|
 | ESP32-WROOM-32 | **Arduino Uno R3** | Alternative |
 | LDR | **Photoresistor** + 10 kΩ | Same part |
-| TMP102 | **Temperature Sensor [TMP36]** | Alternative |
+| DHT-22 | **Temperature Sensor [TMP36]** | Alternative |
 | MPU-6050 | **Tilt sensor** | Alternative (attitude flag only) |
 | ESP32-CAM | **Ultrasonic Distance Sensor (4-pin)** | Crucial (detection). Object < 150 cm = "mine" |
-| LoRa SX1278 | **Serial Monitor** | Crucial (downlink). Prints the real packet format |
+| HC-12 433 MHz radio | **Serial Monitor** | Crucial (downlink). Prints the real packet format |
 | INA219, solar panels, 18650, TP4056 charger, MT3608 boost | skipped | Power is shown in **Multisim** |
 | Micro SD | skipped | Not crucial |
 | N20 + L9110S (reaction wheel) | skipped | Optional |

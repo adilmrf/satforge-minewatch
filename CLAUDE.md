@@ -120,15 +120,11 @@ TMP36 for temperature, a tilt switch for attitude, an ultrasonic sensor for dete
 "mine"), and the Serial Monitor in place of the radio. Power is shown separately in Multisim.
 Its README has test cases 1–4, which the team still has to run and record.
 
-## Known loose ends (as of Nov 2026)
+## Things to keep in mind
 
-- **"Pass" pill on live data:** the ground station no longer sends `pass`, but `dashboard.js` still reads
-  `p.pass` for the "PASS · CAM ON" pill, so with ground-station data it always shows "NO PASS".
-  Bench-mode parsing and the simulator still set `pass`.
-- **Landing page OBC text:** says the OBC "runs detection logic and Wi-Fi downlink". In the firmware,
-  detection runs on the ESP32-CAM, and Wi-Fi (ESP-NOW) is only the backup to the HC-12.
-- **Tinkercad README part names:** lists "TMP102" and "LoRa SX1278" as the real parts. The flight
-  hardware uses a DHT-22 and an HC-12.
-- **Telemetry rate:** `dashboard/README.md` says about 1 Hz. The satellite sends every 2 s.
-- **Satellite boot message:** two `printf`s run together, giving `# ESP-NOW OK, # INA219 ...` on one line.
-  This is cosmetic only.
+- The "PASS · CAM ON" pill on the dashboard follows `cam_on`. There is no separate `pass` field in the
+  packets any more. On real hardware it means "the camera has reported in the last 5 s", not an orbital pass.
+- The public site on `gh-pages` is a hand-made copy of `dashboard/`. A change merged to `main` does not
+  appear on the live site until someone copies it over.
+- The live dashboard shows signal strength as `0 dBm / 0 dB`. That is expected: HC-12 and ESP-NOW don't report it.
+- When you find something in the repo that contradicts itself, tell the person asking, and suggest adding it here.

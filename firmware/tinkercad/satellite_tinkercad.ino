@@ -4,7 +4,7 @@
 //   TMP36          = temperature sensor            A0
 //   Tilt sensor    = MPU-6050 (attitude flag)      D4
 //   Ultrasonic     = ESP32-CAM (object < 150 cm = "mine")  TRIG D7, ECHO D6
-//   Serial Monitor = LoRa downlink to the ground station
+//   Serial Monitor = HC-12 radio downlink to the ground station
 //
 // Prints the same CSV packets as the real CubeSat; fields not simulated here are 0:
 //   T,temp_c,solar_mw,power_mw,bus_v,current_ma,batt_v,soc,ldr,roll,pitch,yaw,cam_on,sd_records
