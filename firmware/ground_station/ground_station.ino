@@ -69,11 +69,11 @@ void printTelemetry(String *f, int rssi, float snr) {
   Serial.printf(
     "{\"type\":\"telemetry\",\"temp_c\":%s,\"solar_mw\":%s,\"power_mw\":%s,"
     "\"bus_v\":%s,\"current_ma\":%s,\"batt_v\":%s,\"soc\":%s,\"ldr\":%s,"
-    "\"roll\":%s,\"pitch\":%s,\"yaw\":%s,\"cam_on\":%s,\"pass\":%s,"
+    "\"roll\":%s,\"pitch\":%s,\"yaw\":%s,\"cam_on\":%s,"
     "\"sd_records\":%s,\"rssi\":%d,\"snr\":%.1f}\n",
     f[1].c_str(), f[2].c_str(), f[3].c_str(), f[4].c_str(), f[5].c_str(),
     f[6].c_str(), f[7].c_str(), f[8].c_str(), f[9].c_str(), f[10].c_str(),
-    f[11].c_str(), f[12] == "1" ? "true" : "false", f[12] == "1" ? "true" : "false",
+    f[11].c_str(), f[12] == "1" ? "true" : "false",
     f[13].c_str(), rssi, snr);
 }
 

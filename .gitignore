@@ -1,4 +1,5 @@
-﻿# Only the website, firmware and deploy workflow are published.
+﻿# Only the website and firmware are published. The site is deployed by hand
+# by copying dashboard/ to the gh-pages branch.
 # Team documents (brief, sourcing, notes) stay local.
 /*
 !/.gitignore

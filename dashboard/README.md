@@ -30,13 +30,13 @@ JSON, one packet per message. `t` is Unix time in ms (optional; the dashboard us
 {
   "type": "telemetry", "t": 1761650000000,
   "temp_c": 24.1,                       // DHT-22
-  "solar_mw": 1150, "power_mw": 420,    // INA219 on solar input / load
+  "solar_mw": 1150, "power_mw": 420,    // solar estimated from the LDR / load measured by the INA219 on the 5 V bus
   "bus_v": 5.00, "current_ma": 84,      // INA219
   "batt_v": 3.98, "soc": 76.0,          // battery voltage, state of charge %
   "ldr": 3100,                          // raw ADC 0-4095; >1000 = sunlit
   "roll": 1.2, "pitch": -0.4, "yaw": 87.0,   // MPU-6050, degrees
-  "rssi": -101, "snr": 7.2,             // radio link quality (ground station side)
-  "cam_on": true, "pass": true,         // camera imaging / over target area
+  "rssi": -101, "snr": 7.2,             // link quality; 0 with HC-12 / ESP-NOW (not reported)
+  "cam_on": true,                       // camera sending detections
   "sd_records": 512                     // rows logged to SD
 }
 ```
