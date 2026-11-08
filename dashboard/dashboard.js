@@ -225,7 +225,7 @@ class Simulator {
         ldr: Math.round(sunlit ? rand(2800, 3400) : rand(80, 200)),
         roll: +roll.toFixed(1), pitch: +pitch.toFixed(1), yaw: +this.yaw.toFixed(1),
         rssi: Math.round(-104 + 7 * Math.sin(this.t / 700) + gauss() * 2), snr: +(7 + gauss()).toFixed(1),
-        cam_on: camOn, pass: camOn, sd_records: this.sd,
+        cam_on: camOn, sd_records: this.sd,
       });
     }
   }
@@ -406,7 +406,7 @@ async function connectSerial(onPacket, onStatus) {
           if (f[0] === "T" && f.length >= 14) {
             onPacket({ type: "telemetry", temp_c: +f[1], solar_mw: +f[2], power_mw: +f[3], bus_v: +f[4], current_ma: +f[5],
               batt_v: +f[6], soc: +f[7], ldr: +f[8], roll: +f[9], pitch: +f[10], yaw: +f[11], cam_on: f[12] === "1",
-              pass: f[12] === "1", sd_records: +f[13], rssi: 0, snr: 0 });
+              sd_records: +f[13], rssi: 0, snr: 0 });
           } else if (f[0] === "D" && f.length >= 4) {
             onPacket({ type: "detection", lat: +f[1], lon: +f[2], conf: +f[3] });
           }
@@ -667,7 +667,7 @@ function renderTelemetry() {
 
   const sunlit = p.ldr > 1000;
   setPill("pill-mode", sunlit ? "SUNLIT" : "ECLIPSE", sunlit ? "ok" : "dim");
-  setPill("pill-pass", p.pass ? "PASS · CAM ON" : "NO PASS", p.pass ? "hot" : "");
+  setPill("pill-pass", p.cam_on ? "PASS · CAM ON" : "NO PASS", p.cam_on ? "hot" : "");
 
   spark("sp-power", [state.spark.solar, state.spark.load], ["#ffc94d", "#35d0ba"]);
   spark("sp-soc", [state.spark.soc], ["#4ade80"], [0, 100]);

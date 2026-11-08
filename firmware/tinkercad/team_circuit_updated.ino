@@ -77,7 +77,7 @@ void loop() {
   Serial.print("Hazard alert: ");
   Serial.println(objectDetected ? "OBJECT DETECTED" : "NO OBJECT");
 
-  Serial.println("Downlink: SIMULATED - NOT REAL LoRa");
+  Serial.println("Downlink: SIMULATED - NOT REAL RADIO");
 
   delay(1000);
 }

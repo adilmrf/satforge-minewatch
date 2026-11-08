@@ -25,7 +25,7 @@ either serve the dashboard locally (`http://`) or relay packets through a cloud 
 ## Packet format (what the CubeSat firmware must send)
 JSON, one packet per message. `t` is Unix time in ms (optional; the dashboard uses receive time if missing).
 
-### Telemetry (send ~1 Hz)
+### Telemetry (the satellite sends every 2 s)
 ```json
 {
   "type": "telemetry", "t": 1761650000000,

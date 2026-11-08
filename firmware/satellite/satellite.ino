@@ -190,8 +190,8 @@ void setup() {
   web.on("/", handleRoot);
   web.begin();
 
-  Serial.printf("# ESP-NOW %s", nowOk ? "OK, " : "FAILED, ");
-  Serial.printf("# INA219 %s, MPU-6050 %s, Wi-Fi AP %s\n", inaOk ? "OK" : "MISSING",
+  Serial.printf("# ESP-NOW %s, ", nowOk ? "OK" : "FAILED");
+  Serial.printf("INA219 %s, MPU-6050 %s, Wi-Fi AP %s\n", inaOk ? "OK" : "MISSING",
                 mpuOk ? "OK" : "MISSING", WiFi.softAPIP().toString().c_str());
   radioSend("# MINEWATCH online");
 }
